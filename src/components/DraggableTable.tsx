@@ -25,7 +25,7 @@ interface Props {
   table: Table;
 }
 
-export const DraggableTable: React.FC<Props> = ({ table }) => {
+const DraggableTableInner: React.FC<Props> = ({ table }) => {
   /* ---------------- dnd-kit ---------------- */
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: table.id });
@@ -101,3 +101,5 @@ export const DraggableTable: React.FC<Props> = ({ table }) => {
     </div>
   );
 };
+
+export const DraggableTable = React.memo(DraggableTableInner);

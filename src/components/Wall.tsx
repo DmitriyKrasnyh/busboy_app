@@ -16,7 +16,7 @@ interface Props {
   isDraft?: boolean;
 }
 
-export const WallComponent: React.FC<Props> = ({ wall, isDraft = false }) => {
+const WallComponentInner: React.FC<Props> = ({ wall, isDraft = false }) => {
   /* ---------------- dnd-kit ---------------- */
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: `wall-${wall.id}`, disabled: isDraft });
@@ -54,3 +54,5 @@ export const WallComponent: React.FC<Props> = ({ wall, isDraft = false }) => {
     />
   );
 };
+
+export const WallComponent = React.memo(WallComponentInner);

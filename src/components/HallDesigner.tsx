@@ -84,37 +84,54 @@ export const HallDesigner: React.FC = () => {
   );
 
   /* ---------------- Помощники для стены ---------------- */
-  const getOffset = (e: React.PointerEvent<HTMLDivElement>) => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const raw = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    return isSnap ? { x: snap(raw.x), y: snap(raw.y) } : raw;
-  };
+  const getOffset = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const raw = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      return isSnap ? { x: snap(raw.x), y: snap(raw.y) } : raw;
+    },
+    [isSnap]
+  );
 
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (tool !== 'wall') return;
-    const start = getOffset(e);
-    setDraftWall({ id: Date.now(), start, end: start, thickness: WALL_THICKNESS });
-  };
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (tool !== 'wall') return;
+      const start = getOffset(e);
+      setDraftWall({
+        id: Date.now(),
+        start,
+        end: start,
+        thickness: WALL_THICKNESS,
+      });
+    },
+    [tool, getOffset]
+  );
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!draftWall) return;
-    setDraftWall({ ...draftWall, end: getOffset(e) });
-  };
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!draftWall) return;
+      setDraftWall({ ...draftWall, end: getOffset(e) });
+    },
+    [draftWall, getOffset]
+  );
 
-  const handlePointerUp = () => {
+  const handlePointerUp = useCallback(() => {
     if (!draftWall) return;
     // Игнорируем стены длиной < 5 px, чтобы не плодить «точки»
     const dx = draftWall.end.x - draftWall.start.x;
     const dy = draftWall.end.y - draftWall.start.y;
     if (Math.hypot(dx, dy) > 5) dispatch({ type: 'ADD_WALL', wall: draftWall });
     setDraftWall(null);
-  };
+  }, [draftWall, dispatch]);
 
   /* ---------------- UI helpers ---------------- */
-  const toolClass = (t: Tool) =>
-    `rounded px-3 py-1 text-sm shadow transition ${
-          tool === t ? 'bg-gray-800 text-white' : 'bg-white border'
-        }`;
+  const toolClass = useCallback(
+    (t: Tool) =>
+      `rounded px-3 py-1 text-sm shadow transition ${
+        tool === t ? 'bg-gray-800 text-white' : 'bg-white border'
+      }`,
+    [tool]
+  );
 
   /* ---------------- Render ---------------- */
   return (
